@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "cY6F4ypYGEM=",
+  "success": true,
+  "projectFilePath": "/workspaces/EtlProject/EtlSolution/EtlCore/EtlCore.fsproj",
+  "expectedPackageFiles": [
+    "/home/vscode/.nuget/packages/fsharp.core/9.0.303/fsharp.core.9.0.303.nupkg.sha512",
+    "/home/vscode/.nuget/packages/microsoft.netcore.app.ref/8.0.24/microsoft.netcore.app.ref.8.0.24.nupkg.sha512",
+    "/home/vscode/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.24/microsoft.aspnetcore.app.ref.8.0.24.nupkg.sha512"
+  ],
+  "logs": []
+}

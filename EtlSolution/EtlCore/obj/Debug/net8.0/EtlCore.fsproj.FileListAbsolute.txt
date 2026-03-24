@@ -1,0 +1,4 @@
+/workspaces/EtlProject/EtlSolution/EtlCore/obj/Debug/net8.0/EtlCore.fsproj.AssemblyReference.cache
+/workspaces/EtlProject/EtlSolution/EtlCore/obj/Debug/net8.0/EtlCore.AssemblyInfoInputs.cache
+/workspaces/EtlProject/EtlSolution/EtlCore/obj/Debug/net8.0/EtlCore.AssemblyInfo.fs
+/workspaces/EtlProject/EtlSolution/EtlCore/obj/Debug/net8.0/EtlCore.fsproj.CoreCompileInputs.cache

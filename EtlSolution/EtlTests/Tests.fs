@@ -1,9 +1,9 @@
-﻿/// Testes completos das funções puras de EtlCore.
+﻿// Testes completos das funções puras de EtlCore.
 module Tests
 
 open Xunit
-open Types
-open Transform
+open EtlCore.Types
+open EtlCore.Transform
 
 // ── Dados de teste ────────────────────────────────────────────────────────────
 
