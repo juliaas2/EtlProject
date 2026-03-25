@@ -1,6 +1,7 @@
 ﻿module Program
 
 open System
+open Microsoft.Data.Sqlite
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Logging
 open Types
@@ -80,7 +81,7 @@ let main argv =
     Load.writeMonthlySummaries settings.OutputMonthlyPath monthly
 
     // Save to database
-    use connection = new System.Data.SQLite.SQLiteConnection($"Data Source={settings.DatabasePath}")
+    use connection = new SqliteConnection($"Data Source={settings.DatabasePath}")
     connection.Open()
     createTables connection
     insertOrders connection orders

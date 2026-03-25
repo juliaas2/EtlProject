@@ -13,10 +13,12 @@
     <SourceRoot Include="/home/vscode/.nuget/packages/" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgMicrosoft_Extensions_Logging Condition=" '$(PkgMicrosoft_Extensions_Logging)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.logging/8.0.0</PkgMicrosoft_Extensions_Logging>
-    <PkgMicrosoft_Extensions_Logging_Console Condition=" '$(PkgMicrosoft_Extensions_Logging_Console)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.logging.console/8.0.0</PkgMicrosoft_Extensions_Logging_Console>
-    <PkgMicrosoft_Extensions_Configuration_Json Condition=" '$(PkgMicrosoft_Extensions_Configuration_Json)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.configuration.json/8.0.0</PkgMicrosoft_Extensions_Configuration_Json>
-    <PkgMicrosoft_Data_Sqlite Condition=" '$(PkgMicrosoft_Data_Sqlite)' == '' ">/home/vscode/.nuget/packages/microsoft.data.sqlite/8.0.0</PkgMicrosoft_Data_Sqlite>
+    <PkgMicrosoft_Extensions_Logging Condition=" '$(PkgMicrosoft_Extensions_Logging)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.logging/9.0.0</PkgMicrosoft_Extensions_Logging>
+    <PkgMicrosoft_Extensions_Logging_Console Condition=" '$(PkgMicrosoft_Extensions_Logging_Console)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.logging.console/9.0.0</PkgMicrosoft_Extensions_Logging_Console>
+    <PkgMicrosoft_Extensions_Configuration_Json Condition=" '$(PkgMicrosoft_Extensions_Configuration_Json)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.configuration.json/9.0.0</PkgMicrosoft_Extensions_Configuration_Json>
+    <PkgMicrosoft_Extensions_Configuration_EnvironmentVariables Condition=" '$(PkgMicrosoft_Extensions_Configuration_EnvironmentVariables)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.configuration.environmentvariables/9.0.0</PkgMicrosoft_Extensions_Configuration_EnvironmentVariables>
+    <PkgMicrosoft_Extensions_Configuration_CommandLine Condition=" '$(PkgMicrosoft_Extensions_Configuration_CommandLine)' == '' ">/home/vscode/.nuget/packages/microsoft.extensions.configuration.commandline/9.0.0</PkgMicrosoft_Extensions_Configuration_CommandLine>
+    <PkgMicrosoft_Data_Sqlite Condition=" '$(PkgMicrosoft_Data_Sqlite)' == '' ">/home/vscode/.nuget/packages/microsoft.data.sqlite/9.0.0</PkgMicrosoft_Data_Sqlite>
     <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">/home/vscode/.nuget/packages/fsharp.core/9.0.303</PkgFSharp_Core>
   </PropertyGroup>
 </Project>

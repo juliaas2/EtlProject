@@ -1,9 +1,10 @@
 module Database
 
-open System.Data.SQLite
+open System
+open Microsoft.Data.Sqlite
 open Types
 
-let createTables (connection: SQLiteConnection) =
+let createTables (connection: SqliteConnection) =
     let createOrdersTable = """
         CREATE TABLE IF NOT EXISTS Orders (
             Id INTEGER PRIMARY KEY,
@@ -39,19 +40,19 @@ let createTables (connection: SQLiteConnection) =
             PRIMARY KEY (Year, Month)
         );
     """
-    use command = new SQLiteCommand(createOrdersTable, connection)
+    use command = new SqliteCommand(createOrdersTable, connection)
     command.ExecuteNonQuery() |> ignore
-    use command = new SQLiteCommand(createOrderItemsTable, connection)
+    use command = new SqliteCommand(createOrderItemsTable, connection)
     command.ExecuteNonQuery() |> ignore
-    use command = new SQLiteCommand(createOrderSummariesTable, connection)
+    use command = new SqliteCommand(createOrderSummariesTable, connection)
     command.ExecuteNonQuery() |> ignore
-    use command = new SQLiteCommand(createMonthlySummariesTable, connection)
+    use command = new SqliteCommand(createMonthlySummariesTable, connection)
     command.ExecuteNonQuery() |> ignore
 
-let insertOrders (connection: SQLiteConnection) (orders: Order list) =
+let insertOrders (connection: SqliteConnection) (orders: Order list) =
     let insertSql = "INSERT OR REPLACE INTO Orders (Id, ClientId, OrderDate, Status, Origin) VALUES (@Id, @ClientId, @OrderDate, @Status, @Origin)"
     orders |> List.iter (fun order ->
-        use command = new SQLiteCommand(insertSql, connection)
+        use command = new SqliteCommand(insertSql, connection)
         command.Parameters.AddWithValue("@Id", order.Id) |> ignore
         command.Parameters.AddWithValue("@ClientId", order.ClientId) |> ignore
         command.Parameters.AddWithValue("@OrderDate", order.OrderDate) |> ignore
@@ -60,10 +61,10 @@ let insertOrders (connection: SQLiteConnection) (orders: Order list) =
         command.ExecuteNonQuery() |> ignore
     )
 
-let insertOrderItems (connection: SQLiteConnection) (items: OrderItem list) =
+let insertOrderItems (connection: SqliteConnection) (items: OrderItem list) =
     let insertSql = "INSERT OR REPLACE INTO OrderItems (OrderId, ProductId, Quantity, Price, Tax) VALUES (@OrderId, @ProductId, @Quantity, @Price, @Tax)"
     items |> List.iter (fun item ->
-        use command = new SQLiteCommand(insertSql, connection)
+        use command = new SqliteCommand(insertSql, connection)
         command.Parameters.AddWithValue("@OrderId", item.OrderId) |> ignore
         command.Parameters.AddWithValue("@ProductId", item.ProductId) |> ignore
         command.Parameters.AddWithValue("@Quantity", item.Quantity) |> ignore
@@ -72,20 +73,20 @@ let insertOrderItems (connection: SQLiteConnection) (items: OrderItem list) =
         command.ExecuteNonQuery() |> ignore
     )
 
-let insertOrderSummaries (connection: SQLiteConnection) (summaries: OrderSummary list) =
+let insertOrderSummaries (connection: SqliteConnection) (summaries: OrderSummary list) =
     let insertSql = "INSERT OR REPLACE INTO OrderSummaries (OrderId, TotalAmount, TotalTaxes) VALUES (@OrderId, @TotalAmount, @TotalTaxes)"
     summaries |> List.iter (fun summary ->
-        use command = new SQLiteCommand(insertSql, connection)
+        use command = new SqliteCommand(insertSql, connection)
         command.Parameters.AddWithValue("@OrderId", summary.OrderId) |> ignore
         command.Parameters.AddWithValue("@TotalAmount", summary.TotalAmount) |> ignore
         command.Parameters.AddWithValue("@TotalTaxes", summary.TotalTaxes) |> ignore
         command.ExecuteNonQuery() |> ignore
     )
 
-let insertMonthlySummaries (connection: SQLiteConnection) (summaries: MonthlySummary list) =
+let insertMonthlySummaries (connection: SqliteConnection) (summaries: MonthlySummary list) =
     let insertSql = "INSERT OR REPLACE INTO MonthlySummaries (Year, Month, AvgAmount, AvgTaxes) VALUES (@Year, @Month, @AvgAmount, @AvgTaxes)"
     summaries |> List.iter (fun summary ->
-        use command = new SQLiteCommand(insertSql, connection)
+        use command = new SqliteCommand(insertSql, connection)
         command.Parameters.AddWithValue("@Year", summary.Year) |> ignore
         command.Parameters.AddWithValue("@Month", summary.Month) |> ignore
         command.Parameters.AddWithValue("@AvgAmount", summary.AvgAmount) |> ignore
@@ -93,9 +94,9 @@ let insertMonthlySummaries (connection: SQLiteConnection) (summaries: MonthlySum
         command.ExecuteNonQuery() |> ignore
     )
 
-let loadOrdersFromDb (connection: SQLiteConnection) : Order list =
+let loadOrdersFromDb (connection: SqliteConnection) : Order list =
     let selectSql = "SELECT Id, ClientId, OrderDate, Status, Origin FROM Orders"
-    use command = new SQLiteCommand(selectSql, connection)
+    use command = new SqliteCommand(selectSql, connection)
     use reader = command.ExecuteReader()
     let rec readOrders acc =
         if reader.Read() then
@@ -111,9 +112,9 @@ let loadOrdersFromDb (connection: SQLiteConnection) : Order list =
             List.rev acc
     readOrders []
 
-let loadOrderItemsFromDb (connection: SQLiteConnection) : OrderItem list =
+let loadOrderItemsFromDb (connection: SqliteConnection) : OrderItem list =
     let selectSql = "SELECT OrderId, ProductId, Quantity, Price, Tax FROM OrderItems"
-    use command = new SQLiteCommand(selectSql, connection)
+    use command = new SqliteCommand(selectSql, connection)
     use reader = command.ExecuteReader()
     let rec readItems acc =
         if reader.Read() then
