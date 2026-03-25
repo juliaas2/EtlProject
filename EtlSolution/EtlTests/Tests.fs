@@ -30,7 +30,9 @@ let ``splitCsvLine divide linha por virgula`` () =
 [<Fact>]
 let ``parseOrder carrega campos corretamente`` () =
     let fields = [| "1"; "101"; "2024-01-15"; "Complete"; "O" |]
-    let order  = parseOrder fields
+    let orderOpt = parseOrder fields
+    Assert.True(orderOpt.IsSome)
+    let order = orderOpt.Value
     Assert.Equal(1,          order.Id)
     Assert.Equal(101,        order.ClientId)
     Assert.Equal("Complete", order.Status)
@@ -39,7 +41,9 @@ let ``parseOrder carrega campos corretamente`` () =
 [<Fact>]
 let ``parseOrderItem carrega campos corretamente`` () =
     let fields = [| "1"; "201"; "2"; "100.0"; "0.10" |]
-    let item   = parseOrderItem fields
+    let itemOpt = parseOrderItem fields
+    Assert.True(itemOpt.IsSome)
+    let item = itemOpt.Value
     Assert.Equal(1,     item.OrderId)
     Assert.Equal(2,     item.Quantity)
     Assert.Equal(100.0, item.Price)
@@ -80,7 +84,7 @@ let ``itemTax com tax zero retorna zero`` () =
 let ``joinOrdersWithItems retorna apenas itens dos pedidos filtrados`` () =
     let filtered = filterOrders "Complete" "O" sampleOrders
     let joined   = joinOrdersWithItems filtered sampleItems
-    let orderIds = joined |> List.map (fun (_, i) -> i.OrderId) |> List.distinct |> List.sort
+    let orderIds = joined |> Seq.map (fun (_, i) -> i.OrderId) |> Seq.distinct |> Seq.sort |> Seq.toList
     Assert.Equal<int list>([1; 3], orderIds)
 
 [<Fact>]

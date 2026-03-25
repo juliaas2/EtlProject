@@ -51,15 +51,17 @@ Este projeto implementa um sistema ETL (Extract, Transform, Load) simples em F# 
 
 ## O que não foi implementado
 
-- **Tratamento de Erros**: Não há tratamento robusto de erros para arquivos inexistentes, dados malformados ou falhas de rede.
-- **Validação de Dados**: Não há validação adicional além do parsing básico.
-- **Persistência em Banco de Dados**: Os dados são apenas processados e salvos em CSV; não há integração com bancos de dados.
-- **Configuração Flexível**: Caminhos de arquivos são hardcoded; não há suporte a configuração externa.
-- **Logging**: Não há sistema de logging para rastrear operações.
-- **Performance Otimizada**: Para grandes volumes de dados, pode haver problemas de performance devido ao uso de listas em F#.
-- **Interface Gráfica**: Apenas console-based.
-- **Deploy e Empacotamento**: Não há scripts para deploy ou empacotamento.
-- **Integração Contínua**: Não há configuração de CI/CD.
+- Nenhuma funcionalidade adicional pendente.
 
-## Problemas Conhecidos
-- Houve um problema com `List.filter` causando `NullReferenceException` em algumas versões do F#. Como workaround, foi considerado usar recursão, mas no código atual ainda usa `List.filter`. Se o erro persistir, substituir por implementação recursiva conforme documentado em notas pessoais.
+## Melhorias Implementadas
+
+- **Correção de List.filter**: Substituído por implementação recursiva para evitar NullReferenceException.
+- **Tratamento de Erros**: Try-catch em carregamento de arquivos, parsing e requisições HTTP.
+- **Validação de Dados**: Parsing retorna Option, com validações para IDs positivos, quantidades >0, preços >=0, taxas entre 0 e 1.
+- **Persistência em Banco de Dados**: Adicionado módulo Database com salvamento em SQLite (tabelas para Orders, OrderItems, OrderSummaries, MonthlySummaries).
+- **Performance Otimizada**: Otimizado para usar Seq em operações de junção e agregação para melhor performance com grandes volumes.
+- **Interface Gráfica**: Adicionada interface interativa no console para seleção de filtros quando não fornecidos via argumentos.
+- **Containerização**: Dockerfile adicionado para deploy via Docker.
+- **Configuração Flexível**: Suporte a arquivos de configuração (appsettings.json), variáveis de ambiente e argumentos de linha de comando.
+- **Logging**: Sistema de logging avançado usando Microsoft.Extensions.Logging com saída para console.
+- **Integração Contínua**: Workflow GitHub Actions para build e testes automatizados.
