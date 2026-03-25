@@ -19,10 +19,10 @@ jobs:
         dotnet-version: 9.0.x
 
     - name: Restore dependencies
-      run: dotnet restore EtlSolution/
+      run: dotnet restore EtlSolution/EtlSolution.sln
 
     - name: Build
-      run: dotnet build EtlSolution/ --configuration Release --no-restore
+      run: dotnet build EtlSolution/EtlSolution.sln --configuration Release --no-restore
 
     - name: Test
-      run: dotnet test EtlSolution/ --configuration Release --no-build --verbosity normal
+      run: dotnet test EtlSolution/EtlSolution.sln --configuration Release --no-build --verbosity normal
