@@ -2,63 +2,80 @@ module Transform
 
 open Types
 
-let rec filterOrders (status: string) (origin: string) (orders: Order list) : Order list =
-    match orders with
-    | [] -> []
-    | h :: t ->
-        let tf = filterOrders status origin t
-        if h.Status = status && h.Origin = origin then h :: tf else tf
+let filterOrders (status: string) (origin: string) (orders: Order list) : Order list =
+    orders
+    |> List.filter (fun o -> o.Status = status && o.Origin = origin)
 
-let itemRevenue (item: OrderItem) : float = item.Price * float item.Quantity
+let itemRevenue (item: OrderItem) : float =
+    item.Price * float item.Quantity
 
-let itemTax (item: OrderItem) : float = item.Tax * itemRevenue item
+let itemTax (item: OrderItem) : float =
+    item.Tax * itemRevenue item
 
 let joinOrdersWithItems (orders: Order list) (items: OrderItem list) : (Order * OrderItem) list =
-    let rec loop rest =
-        match rest with
-        | [] -> []
-        | i :: xs ->
-            let o = orders |> List.tryFind (fun x -> x.Id = i.OrderId)
-            match o with
-            | Some order -> (order, i) :: loop xs
-            | None -> loop xs
-    loop items
+    let orderIds = orders |> List.map (fun o -> o.Id) |> Set.ofList
+    items
+    |> List.filter (fun i -> Set.contains i.OrderId orderIds)
+    |> List.map (fun i ->
+        let order = orders |> List.find (fun o -> o.Id = i.OrderId)
+        (order, i))
 
 let aggregateByOrder (pairs: (Order * OrderItem) list) : OrderSummary list =
-    let grouped = pairs |> List.fold (fun acc (_, item) ->
-        let curr = acc |> Map.tryFind item.OrderId |> Option.defaultValue []
-        acc |> Map.add item.OrderId (item :: curr)
-    ) Map.empty
-    grouped |> Map.toList |> List.map (fun (orderId, items) ->
+    let grouped =
+        pairs
+        |> List.fold (fun (acc: Map<int, OrderItem list>) (_, item) ->
+            let current = acc |> Map.tryFind item.OrderId |> Option.defaultValue []
+            acc |> Map.add item.OrderId (item :: current)
+        ) Map.empty
+    grouped
+    |> Map.toList
+    |> List.map (fun (orderId, items) ->
         let totalAmount = items |> List.fold (fun acc i -> acc + itemRevenue i) 0.0
-        let totalTaxes = items |> List.fold (fun acc i -> acc + itemTax i) 0.0
-        { OrderId = orderId
+        let totalTaxes  = items |> List.fold (fun acc i -> acc + itemTax i) 0.0
+        { OrderId     = orderId
           TotalAmount = System.Math.Round(totalAmount, 2)
-          TotalTaxes = System.Math.Round(totalTaxes, 2) }
-    ) |> List.sortBy (fun s -> s.OrderId)
+          TotalTaxes  = System.Math.Round(totalTaxes, 2) })
+    |> List.sortBy (fun s -> s.OrderId)
 
 let transform (status: string) (origin: string) (orders: Order list) (items: OrderItem list) : OrderSummary list =
-    orders |> filterOrders status origin |> fun f -> joinOrdersWithItems f items |> aggregateByOrder
+    orders
+    |> filterOrders status origin
+    |> fun filtered -> joinOrdersWithItems filtered items
+    |> aggregateByOrder
 
 let parseYearMonth (dateStr: string) : (int * int) option =
-    let p = dateStr.Split('T').[0].Split('-')
-    if p.Length >= 2 then Some (int p.[0], int p.[1]) else None
+    let datePart = dateStr.Split('T').[0]
+    let parts    = datePart.Split('-')
+    if parts.Length >= 2 then Some (int parts.[0], int parts.[1])
+    else None
 
 let monthlyAverages (status: string) (origin: string) (orders: Order list) (items: OrderItem list) : MonthlySummary list =
-    let fo = filterOrders status origin orders
-    let ym = fo |> List.choose (fun o -> parseYearMonth o.OrderDate |> Option.map (fun y -> (o.Id, y))) |> Map.ofList
-    let sums = transform status origin orders items
-    let grp = sums |> List.choose (fun s -> ym |> Map.tryFind s.OrderId |> Option.map (fun y -> (y, s))) |> List.fold (fun a (y, s) ->
-        let c = a |> Map.tryFind y |> Option.defaultValue []
-        a |> Map.add y (s :: c)
-    ) Map.empty
-    grp |> Map.toList |> List.map (fun ((yr, mo), ss) ->
-        let cnt = List.length ss |> float
-        let aa = ss |> List.fold (fun a s -> a + s.TotalAmount) 0.0 |> fun t -> System.Math.Round(t / cnt, 2)
-        let at = ss |> List.fold (fun a s -> a + s.TotalTaxes) 0.0 |> fun t -> System.Math.Round(t / cnt, 2)
-        { Year = yr; Month = mo; AvgAmount = aa; AvgTaxes = at }
-    ) |> List.sortBy (fun m -> (m.Year, m.Month))
+    let filteredOrders = filterOrders status origin orders
+    let orderDateMap =
+        filteredOrders
+        |> List.choose (fun o ->
+            parseYearMonth o.OrderDate |> Option.map (fun ym -> (o.Id, ym)))
+        |> Map.ofList
+    let summaries = transform status origin orders items
+    let grouped =
+        summaries
+        |> List.choose (fun s ->
+            orderDateMap |> Map.tryFind s.OrderId |> Option.map (fun ym -> (ym, s)))
+        |> List.fold (fun (acc: Map<(int * int), OrderSummary list>) (ym, s) ->
+            let current = acc |> Map.tryFind ym |> Option.defaultValue []
+            acc |> Map.add ym (s :: current)
+        ) Map.empty
+    grouped
+    |> Map.toList
+    |> List.map (fun ((yr, mo), ss) ->
+        let count     = List.length ss |> float
+        let avgAmount = ss |> List.fold (fun a s -> a + s.TotalAmount) 0.0 |> fun t -> System.Math.Round(t / count, 2)
+        let avgTaxes  = ss |> List.fold (fun a s -> a + s.TotalTaxes)  0.0 |> fun t -> System.Math.Round(t / count, 2)
+        { Year = yr; Month = mo; AvgAmount = avgAmount; AvgTaxes = avgTaxes })
+    |> List.sortBy (fun m -> (m.Year, m.Month))
 
-let summaryToCsvLine (s: OrderSummary) : string = sprintf "%d,%.2f,%.2f" s.OrderId s.TotalAmount s.TotalTaxes
+let summaryToCsvLine (s: OrderSummary) : string =
+    sprintf "%d,%.2f,%.2f" s.OrderId s.TotalAmount s.TotalTaxes
 
-let monthlySummaryToCsvLine (m: MonthlySummary) : string = sprintf "%d,%02d,%.2f,%.2f" m.Year m.Month m.AvgAmount m.AvgTaxes
+let monthlySummaryToCsvLine (m: MonthlySummary) : string =
+    sprintf "%d,%02d,%.2f,%.2f" m.Year m.Month m.AvgAmount m.AvgTaxes

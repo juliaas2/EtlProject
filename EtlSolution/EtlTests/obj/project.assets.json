@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {
+    "net9.0": {
       "FSharp.Core/9.0.303": {
         "type": "package",
         "compile": {
@@ -5554,7 +5554,7 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net8.0": [
+    "net9.0": [
       "EtlCore >= 1.0.0",
       "FSharp.Core >= 9.0.303",
       "Microsoft.NET.Test.Sdk >= 17.8.0",
@@ -5578,15 +5578,15 @@
         "/home/vscode/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
-        "net8.0"
+        "net9.0"
       ],
       "sources": {
         "/usr/share/dotnet/sdk/9.0.311/FSharp/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net9.0": {
+          "targetAlias": "net9.0",
           "projectReferences": {
             "/workspaces/EtlProject/EtlSolution/EtlCore/EtlCore.fsproj": {
               "projectPath": "/workspaces/EtlProject/EtlSolution/EtlCore/EtlCore.fsproj"
@@ -5602,8 +5602,8 @@
       "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
-      "net8.0": {
-        "targetAlias": "net8.0",
+      "net9.0": {
+        "targetAlias": "net9.0",
         "dependencies": {
           "FSharp.Core": {
             "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
@@ -5640,16 +5640,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.24, 8.0.24]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.24, 8.0.24]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"

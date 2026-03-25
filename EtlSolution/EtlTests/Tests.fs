@@ -1,11 +1,8 @@
-﻿// Testes completos das funções puras de EtlCore.
-module Tests
+﻿module Tests
 
 open Xunit
-open EtlCore.Types
-open EtlCore.Transform
-
-// ── Dados de teste ────────────────────────────────────────────────────────────
+open Types
+open Transform
 
 let sampleOrders = [
     { Id = 1; ClientId = 101; OrderDate = "2024-01-15T00:00:00"; Status = "Complete"; Origin = "O" }
@@ -22,8 +19,6 @@ let sampleItems = [
     { OrderId = 3; ProductId = 204; Quantity = 4; Price =  75.0; Tax = 0.08 }
     { OrderId = 5; ProductId = 205; Quantity = 1; Price = 300.0; Tax = 0.15 }
 ]
-
-// ── Helper Functions ──────────────────────────────────────────────────────────
 
 [<Fact>]
 let ``splitCsvLine divide linha por virgula`` () =
@@ -50,8 +45,6 @@ let ``parseOrderItem carrega campos corretamente`` () =
     Assert.Equal(100.0, item.Price)
     Assert.Equal(0.10,  item.Tax)
 
-// ── filterOrders ──────────────────────────────────────────────────────────────
-
 [<Fact>]
 let ``filterOrders retorna apenas pedidos com status e origin corretos`` () =
     let result = filterOrders "Complete" "O" sampleOrders
@@ -68,8 +61,6 @@ let ``filterOrders e case-sensitive`` () =
     let result = filterOrders "complete" "O" sampleOrders
     Assert.Empty(result)
 
-// ── itemRevenue / itemTax ─────────────────────────────────────────────────────
-
 [<Fact>]
 let ``itemRevenue calcula price vezes quantity`` () =
     let item = { OrderId = 1; ProductId = 1; Quantity = 3; Price = 50.0; Tax = 0.10 }
@@ -85,11 +76,9 @@ let ``itemTax com tax zero retorna zero`` () =
     let item = { OrderId = 1; ProductId = 1; Quantity = 5; Price = 200.0; Tax = 0.0 }
     Assert.Equal(0.0, itemTax item)
 
-// ── joinOrdersWithItems ───────────────────────────────────────────────────────
-
 [<Fact>]
 let ``joinOrdersWithItems retorna apenas itens dos pedidos filtrados`` () =
-    let filtered = filterOrders "Complete" "O" sampleOrders  // ids 1 e 3
+    let filtered = filterOrders "Complete" "O" sampleOrders
     let joined   = joinOrdersWithItems filtered sampleItems
     let orderIds = joined |> List.map (fun (_, i) -> i.OrderId) |> List.distinct |> List.sort
     Assert.Equal<int list>([1; 3], orderIds)
@@ -100,12 +89,8 @@ let ``joinOrdersWithItems retorna lista vazia se nenhum item bate`` () =
     let joined = joinOrdersWithItems orders sampleItems
     Assert.Empty(joined)
 
-// ── aggregateByOrder ──────────────────────────────────────────────────────────
-
 [<Fact>]
 let ``aggregateByOrder soma receita e impostos corretamente`` () =
-    // order 1: item (qty=2, price=100, tax=0.10) + item (qty=1, price=200, tax=0.05)
-    // total_amount = 200 + 200 = 400 | total_taxes = 20 + 10 = 30
     let filtered = filterOrders "Complete" "O" sampleOrders
     let joined   = joinOrdersWithItems filtered sampleItems
     let result   = aggregateByOrder joined
@@ -119,9 +104,7 @@ let ``aggregateByOrder retorna um registro por pedido`` () =
     let joined   = joinOrdersWithItems filtered sampleItems
     let result   = aggregateByOrder joined
     let ids      = result |> List.map (fun s -> s.OrderId)
-    Assert.Equal(ids, ids |> List.distinct)
-
-// ── transform (pipeline) ──────────────────────────────────────────────────────
+    Assert.Equal<int list>(ids, ids |> List.distinct)
 
 [<Fact>]
 let ``transform retorna lista vazia para filtro sem resultados`` () =
@@ -130,11 +113,9 @@ let ``transform retorna lista vazia para filtro sem resultados`` () =
 
 [<Fact>]
 let ``transform retorna summaries apenas dos pedidos filtrados`` () =
-    let result  = transform "Complete" "O" sampleOrders sampleItems
-    let ids     = result |> List.map (fun s -> s.OrderId) |> List.sort
+    let result = transform "Complete" "O" sampleOrders sampleItems
+    let ids    = result |> List.map (fun s -> s.OrderId) |> List.sort
     Assert.Equal<int list>([1; 3], ids)
-
-// ── parseYearMonth ────────────────────────────────────────────────────────────
 
 [<Fact>]
 let ``parseYearMonth extrai ano e mes de data simples`` () =
@@ -147,8 +128,6 @@ let ``parseYearMonth extrai ano e mes de datetime com T`` () =
 [<Fact>]
 let ``parseYearMonth retorna None para string invalida`` () =
     Assert.Equal(None, parseYearMonth "invalido")
-
-// ── Serialização CSV ──────────────────────────────────────────────────────────
 
 [<Fact>]
 let ``summaryToCsvLine formata corretamente`` () =

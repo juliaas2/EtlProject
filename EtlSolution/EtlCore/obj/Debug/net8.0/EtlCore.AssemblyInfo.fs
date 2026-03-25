@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("EtlCore")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6789b192ad93165ad584a32403172e7f547dcf63")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("EtlCore")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("EtlCore")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]
