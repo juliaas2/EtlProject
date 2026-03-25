@@ -2,9 +2,15 @@ module Transform
 
 open Types
 
-let filterOrders (status: string) (origin: string) (orders: Order list) : Order list =
-    orders
-    |> List.filter (fun o -> o.Status = status && o.Origin = origin)
+let rec filterOrders (status: string) (origin: string) (orders: Order list) : Order list =
+    match orders with
+    | [] -> []
+    | head :: tail ->
+        let tail_filtered = filterOrders status origin tail
+        if head.Status = status && head.Origin = origin then
+            head :: tail_filtered
+        else
+            tail_filtered
 
 let itemRevenue (item: OrderItem) : float =
     item.Price * float item.Quantity
@@ -12,29 +18,30 @@ let itemRevenue (item: OrderItem) : float =
 let itemTax (item: OrderItem) : float =
     item.Tax * itemRevenue item
 
-let joinOrdersWithItems (orders: Order list) (items: OrderItem list) : (Order * OrderItem) list =
-    let orderIds = orders |> List.map (fun o -> o.Id) |> Set.ofList
+let joinOrdersWithItems (orders: Order list) (items: OrderItem list) : (Order * OrderItem) seq =
+    let orderIds = orders |> Seq.map (fun o -> o.Id) |> Set.ofSeq
     items
-    |> List.filter (fun i -> Set.contains i.OrderId orderIds)
-    |> List.map (fun i ->
-        let order = orders |> List.find (fun o -> o.Id = i.OrderId)
+    |> Seq.filter (fun i -> Set.contains i.OrderId orderIds)
+    |> Seq.map (fun i ->
+        let order = orders |> Seq.find (fun o -> o.Id = i.OrderId)
         (order, i))
 
-let aggregateByOrder (pairs: (Order * OrderItem) list) : OrderSummary list =
+let aggregateByOrder (pairs: (Order * OrderItem) seq) : OrderSummary list =
     let grouped =
         pairs
-        |> List.fold (fun (acc: Map<int, OrderItem list>) (_, item) ->
+        |> Seq.fold (fun (acc: Map<int, OrderItem list>) (_, item) ->
             let current = acc |> Map.tryFind item.OrderId |> Option.defaultValue []
             acc |> Map.add item.OrderId (item :: current)
         ) Map.empty
     grouped
-    |> Map.toList
-    |> List.map (fun (orderId, items) ->
-        let totalAmount = items |> List.fold (fun acc i -> acc + itemRevenue i) 0.0
-        let totalTaxes  = items |> List.fold (fun acc i -> acc + itemTax i) 0.0
+    |> Map.toSeq
+    |> Seq.map (fun (orderId, items) ->
+        let totalAmount = items |> Seq.fold (fun acc i -> acc + itemRevenue i) 0.0
+        let totalTaxes  = items |> Seq.fold (fun acc i -> acc + itemTax i) 0.0
         { OrderId     = orderId
           TotalAmount = System.Math.Round(totalAmount, 2)
           TotalTaxes  = System.Math.Round(totalTaxes, 2) })
+    |> Seq.toList
     |> List.sortBy (fun s -> s.OrderId)
 
 let transform (status: string) (origin: string) (orders: Order list) (items: OrderItem list) : OrderSummary list =
